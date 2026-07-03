@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outpace // Competitor Ad Arbitrage Control Center</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN for performance progression graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Premium animated background glows -->
+    <div class="background-canvas">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-glow-3"></div>
+    </div>
+
+    <div class="container">
+        <!-- Navigation Header -->
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <!-- Custom SVG Logo -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <span class="logo-text">Outpace</span>
+            </div>
+            <div class="system-status">
+                <div class="pulse-dot" id="statusDot"></div>
+                <span id="statusText">System Standby</span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Workspace -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Panel: Onboarding & Campaign Settings -->
+            <div class="sidebar-panel">
+                <div class="glass-panel">
+                    <h2 class="panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary)">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                        Target Configuration
+                    </h2>
+                    
+                    <form id="onboardingForm">
+                        <div class="form-group">
+                            <label for="businessName">Your Business Name</label>
+                            <input type="text" id="businessName" placeholder="e.g., Acme Cloud" required value="ApexMetrics">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessNiche">Niche / Industry</label>
+                            <select id="businessNiche" required>
+                                <option value="B2B SaaS">B2B SaaS</option>
+                                <option value="E-Commerce">E-Commerce / Direct-to-Consumer</option>
+                                <option value="FinTech">FinTech & Crypto</option>
+                                <option value="Local Services">Local Professional Services</option>
+                                <option value="EdTech">EdTech & E-Learning</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="targetCompetitor">Target Competitor</label>
+                            <input type="text" id="targetCompetitor" placeholder="e.g., Salesforce" required value="HubSpot">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="targetLocation">Target Geo / Location</label>
+                            <input type="text" id="targetLocation" placeholder="e.g., United States" required value="United States">
+                        </div>
+
+                        <button type="submit" class="btn-launch" id="btnLaunch">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            Launch Campaign Strike
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Simulation Panel: Bidding & Budget Distribution -->
+                <div class="glass-panel">
+                    <h2 class="panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-success)">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Bidding Allocator
+                    </h2>
+                    
+                    <div class="sim-grid">
+                        <!-- Google Search -->
+                        <div class="sim-row">
+                            <div class="sim-header">
+                                <span class="platform-name">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M21.64 13a9.8 9.8 0 0 1-.14 1.76H12v-3.32h5.45a4.67 4.67 0 0 1-2 3.07v2.55h3.2a9.66 9.66 0 0 0 2.93-7.06Z"/><path d="M12 22a9.6 9.6 0 0 0 6.66-2.43l-3.2-2.55a5.77 5.77 0 0 1-8.91-3H3.2v2.64A10 10 0 0 0 12 22Z"/><path d="M6.55 14A5.87 5.87 0 0 1 6.2 12a5.87 5.87 0 0 1 .35-2V7.36H3.2a10 10 0 0 0 0 9.28Z"/><path d="M12 5.38a5.2 5.2 0 0 1 3.68 1.44l2.75-2.75A9.6 9.6 0 0 0 12 2 10 10 0 0 0 3.2 7.36l3.35 2.64a5.77 5.77 0 0 1 5.45-4.62Z"/></svg>
+                                    Google Search
+                                </span>
+                                <span class="platform-share" id="googleShare">35% Budget</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="googleProgress" style="background: var(--color-primary); width: 35%"></div>
+                            </div>
+                            <div class="metrics-row">
+                                <div class="metric-item"><span class="metric-label">CTR</span><span class="metric-value" id="googleCTR">0.00%</span></div>
+                                <div class="metric-item"><span class="metric-label">Conv.</span><span class="metric-value" id="googleConv">0</span></div>
+                                <div class="metric-item"><span class="metric-label">ROI</span><span class="metric-value" id="googleROI">0.0x</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Meta Ads -->
+                        <div class="sim-row">
+                            <div class="sim-header">
+                                <span class="platform-name">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-secondary)" stroke-width="2.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                                    Meta Ads
+                                </span>
+                                <span class="platform-share" id="metaShare">45% Budget</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="metaProgress" style="background: var(--color-secondary); width: 45%"></div>
+                            </div>
+                            <div class="metrics-row">
+                                <div class="metric-item"><span class="metric-label">CTR</span><span class="metric-value" id="metaCTR">0.00%</span></div>
+                                <div class="metric-item"><span class="metric-label">Conv.</span><span class="metric-value" id="metaConv">0</span></div>
+                                <div class="metric-item"><span class="metric-label">ROI</span><span class="metric-value" id="metaROI">0.0x</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Local SEO -->
+                        <div class="sim-row">
+                            <div class="sim-header">
+                                <span class="platform-name">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Local SEO
+                                </span>
+                                <span class="platform-share" id="seoShare">20% Budget</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="seoProgress" style="background: var(--color-accent); width: 20%"></div>
+                            </div>
+                            <div class="metrics-row">
+                                <div class="metric-item"><span class="metric-label">CTR</span><span class="metric-value" id="seoCTR">0.00%</span></div>
+                                <div class="metric-item"><span class="metric-label">Conv.</span><span class="metric-value" id="seoConv">0</span></div>
+                                <div class="metric-item"><span class="metric-label">ROI</span><span class="metric-value" id="seoROI">0.0x</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Campaign Control Center Main Area -->
+            <div class="main-dashboard-area">
+                
+                <!-- Subagent Status Log Grid -->
+                <div class="agent-status-container">
+                    <!-- Agent: Competitor Spy -->
+                    <div class="agent-card" id="agentSpy">
+                        <div class="agent-header">
+                            <span class="agent-name">Competitor Spy</span>
+                            <span class="agent-badge badge-idle" id="badgeSpy">Idle</span>
+                        </div>
+                        <div class="agent-log" id="logSpy">Awaiting campaign launch request.</div>
+                    </div>
+                    <!-- Agent: Counter-Copywriter -->
+                    <div class="agent-card" id="agentCopywriter">
+                        <div class="agent-header">
+                            <span class="agent-name">Counter-Copy</span>
+                            <span class="agent-badge badge-idle" id="badgeCopywriter">Idle</span>
+                        </div>
+                        <div class="agent-log" id="logCopywriter">Waiting for competitor targets.</div>
+                    </div>
+                    <!-- Agent: Critic -->
+                    <div class="agent-card" id="agentCritic">
+                        <div class="agent-header">
+                            <span class="agent-name">Ad Critic</span>
+                            <span class="agent-badge badge-idle" id="badgeCritic">Idle</span>
+                        </div>
+                        <div class="agent-log" id="logCritic">Ready to audit generated ads.</div>
+                    </div>
+                    <!-- Agent: Bidding Allocator -->
+                    <div class="agent-card" id="agentBidding">
+                        <div class="agent-header">
+                            <span class="agent-name">Bidding Allocator</span>
+                            <span class="agent-badge badge-idle" id="badgeBidding">Idle</span>
+                        </div>
+                        <div class="agent-log" id="logBidding">Analyzing historical niche performance.</div>
+                    </div>
+                </div>
+
+                <!-- Competitor Ads & Counter-Ads Feed -->
+                <div class="dashboard-middle-grid">
+                    <!-- Competitor Ad Grid -->
+                    <div class="glass-panel">
+                        <h2 class="panel-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="22" y1="12" x2="18" y2="12"></line>
+                                <line x1="6" y1="12" x2="2" y2="12"></line>
+                                <line x1="12" y1="6" x2="12" y2="2"></line>
+                                <line x1="12" y1="22" x2="12" y2="18"></line>
+                            </svg>
+                            Competitor Target Ads
+                        </h2>
+                        <div class="feed-container" id="competitorAdsFeed">
+                            <div style="text-align: center; color: var(--text-dim); margin-top: 3rem;">
+                                No ads discovered yet. Launch campaign to begin monitoring.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generated Counter Ads -->
+                    <div class="glass-panel">
+                        <h2 class="panel-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                            Counter-Strike Ad Recommendations
+                        </h2>
+                        <div class="feed-container" id="counterAdsFeed">
+                            <div style="text-align: center; color: var(--text-dim); margin-top: 3rem;">
+                                Standby for Counter-Copywriter outputs.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Console Log Grid -->
+                <div class="dashboard-bottom-grid">
+                    <!-- Performance Charts -->
+                    <div class="glass-panel">
+                        <h2 class="panel-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                            CTR & Conversion Progression
+                        </h2>
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- System Real-time Console Log -->
+                    <div class="glass-panel">
+                        <h2 class="panel-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 12 13 20 5"></polyline>
+                                <polyline points="15 5 20 5 20 10"></polyline>
+                            </svg>
+                            Telemetry Terminal
+                        </h2>
+                        <div class="terminal-panel" id="terminalLog">
+                            <div class="terminal-line info">[00:00:00] [SYSTEM] Outpace Telemetry Engine initialized. Ready.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Javascript for Simulation, Charts, and API Polling/Fallback -->
+    <script>
+        // Global variables for telemetry & Chart
+        let chartInstance = null;
+        let pollingInterval = null;
+        let isCampaignRunning = false;
+        let dataPoints = 0;
+        let currentNiche = 'B2B SaaS';
+        let currentCompetitor = 'Hubspot';
+        let businessName = 'ApexMetrics';
+        let targetLocation = 'United States';
+
+        // Initialize Performance Chart
+        function initChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Start'],
+                    datasets: [
+                        {
+                            label: 'CTR (%)',
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            data: [0.5],
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Conversions',
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            data: [1],
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans' } }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans' } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f3f4f6',
+                                font: { family: 'Outfit', weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add a line to the terminal
+        function logToTerminal(message, type = 'info') {
+            const terminal = document.getElementById('terminalLog');
+            const time = new Date().toTimeString().split(' ')[0];
+            const logLine = document.createElement('div');
+            logLine.className = `terminal-line ${type}`;
+            logLine.innerText = `[${time}] [${type.toUpperCase()}] ${message}`;
+            terminal.appendChild(logLine);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Handle Scorecard Expander Toggle
+        function toggleScorecard(btn) {
+            const details = btn.parentElement.nextElementSibling;
+            details.classList.toggle('open');
+            btn.innerHTML = details.classList.contains('open') ? 'Hide Details ▲' : 'View Scorecard ▼';
+        }
+
+        // Onboarding Form Submit & API Connection
+        document.getElementById('onboardingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            businessName = document.getElementById('businessName').value;
+            currentNiche = document.getElementById('businessNiche').value;
+            currentCompetitor = document.getElementById('targetCompetitor').value;
+            targetLocation = document.getElementById('targetLocation').value;
+
+            logToTerminal(`Initiating deployment for ${businessName}. Targeting: ${currentCompetitor} in ${targetLocation}...`, 'info');
+            
+            // Set launch button to loading/active state
+            const btn = document.getElementById('btnLaunch');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="pulse-dot"></span> Targeting...`;
+
+            // Clear feeds
+            document.getElementById('competitorAdsFeed').innerHTML = '';
+            document.getElementById('counterAdsFeed').innerHTML = '';
+            
+            // Attempt to fetch from real API if present
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        businessName,
+                        niche: currentNiche,
+                        competitor: currentCompetitor,
+                        location: targetLocation
+                    })
+                });
+
+                if (response.ok) {
+                    logToTerminal('Successfully connected to Outpace API engine.', 'success');
+                } else {
+                    throw new Error(`API returned ${response.status}`);
+                }
+            } catch (err) {
+                logToTerminal(`Notice: Remote API server not reachable (${err.message}). Activating local AI simulation node...`, 'warn');
+            }
+
+            // Start system progression
+            isCampaignRunning = true;
+            document.getElementById('statusDot').className = 'pulse-dot';
+            document.getElementById('statusText').innerText = 'Strike Active';
+            
+            btn.disabled = false;
+            btn.innerHTML = `Campaign Active`;
+            btn.style.background = 'linear-gradient(135deg, var(--color-success), var(--color-accent))';
+
+            // Reset and configure charts
+            if (chartInstance) {
+                chartInstance.data.labels = ['Start'];
+                chartInstance.data.datasets[0].data = [0.5];
+                chartInstance.data.datasets[1].data = [1];
+                chartInstance.update();
+            }
+            dataPoints = 0;
+
+            // Start polling (which falls back to simulated stream if not found)
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollTelemetry();
+            pollingInterval = setInterval(pollTelemetry, 4000);
+        });
+
+        // Main telemetry fetch / simulation logic
+        async function pollTelemetry() {
+            if (!isCampaignRunning) return;
+
+            let telemetryData = null;
+
+            try {
+                const response = await fetch('/api/telemetry');
+                if (response.ok) {
+                    telemetryData = await response.json();
+                    logToTerminal('Fetched fresh telemetry from API.', 'cyan');
+                }
+            } catch (err) {
+                // Fallback to locally computed simulation values
+                telemetryData = generateMockTelemetry();
+            }
+
+            if (telemetryData) {
+                applyTelemetry(telemetryData);
+            }
+        }
+
+        // Apply incoming telemetry data to the UI
+        function applyTelemetry(data) {
+            // 1. Update Agent Status & Badges
+            updateAgentCard('Spy', data.agents.spy.status, data.agents.spy.lastLog);
+            updateAgentCard('Copywriter', data.agents.copywriter.status, data.agents.copywriter.lastLog);
+            updateAgentCard('Critic', data.agents.critic.status, data.agents.critic.lastLog);
+            updateAgentCard('Bidding', data.agents.bidding.status, data.agents.bidding.lastLog);
+
+            // 2. Append Competitor Ad (if any new discovered)
+            if (data.newCompetitorAd) {
+                const competitorName = data.newCompetitorAd.competitor_name || currentCompetitor;
+                const feed = document.getElementById('competitorAdsFeed');
+                const adEl = document.createElement('div');
+                adEl.className = 'competitor-ad-card';
+                adEl.innerHTML = `
+                    <div class="ad-meta">
+                        <span class="competitor-tag">${competitorName}</span>
+                        <span class="ad-platform">${data.newCompetitorAd.platform}</span>
+                    </div>
+                    <div class="ad-title">${data.newCompetitorAd.title}</div>
+                    <div class="ad-body">${data.newCompetitorAd.body}</div>
+                `;
+                feed.prepend(adEl);
+                logToTerminal(`Spy uncovered new ad from ${competitorName} on ${data.newCompetitorAd.platform}`, 'cyan');
+            }
+
+            // 3. Append Counter Ad (if any new generated)
+            if (data.newCounterAd) {
+                const feed = document.getElementById('counterAdsFeed');
+                const adEl = document.createElement('div');
+                adEl.className = 'counter-ad-card';
+                adEl.innerHTML = `
+                    <div class="ad-meta">
+                        <span class="counter-tag">Outpace Ad</span>
+                        <span class="ad-platform">${data.newCounterAd.platform}</span>
+                    </div>
+                    <div class="ad-title">${data.newCounterAd.title}</div>
+                    <div class="ad-body">${data.newCounterAd.body}</div>
+                    <div class="scorecard-summary">
+                        <span style="font-size: 0.8rem; font-weight:700;">Score: <span style="color:var(--color-success)">${data.newCounterAd.score}</span></span>
+                        <button class="scorecard-trigger" onclick="toggleScorecard(this)">View Scorecard ▼</button>
+                    </div>
+                    <div class="scorecard-details">
+                        <div class="scorecard-row">
+                            <span class="scorecard-label">Length Validation</span>
+                            <span class="scorecard-value" style="color: var(--color-success)">${data.newCounterAd.scorecard.length}</span>
+                        </div>
+                        <div class="scorecard-row">
+                            <span class="scorecard-label">Clickbait Index</span>
+                            <span class="scorecard-value">${data.newCounterAd.scorecard.clickbait}</span>
+                        </div>
+                        <div class="scorecard-row">
+                            <span class="scorecard-label">Policy Check</span>
+                            <span class="scorecard-value" style="color: var(--color-success)">${data.newCounterAd.scorecard.policy}</span>
+                        </div>
+                    </div>
+                `;
+                feed.prepend(adEl);
+                logToTerminal(`Critic approved counter-ad for ${data.newCounterAd.platform}`, 'success');
+            }
+
+            // 4. Update Budget Progress Bars & Metrics
+            updateBudgetRow('google', data.budget.google);
+            updateBudgetRow('meta', data.budget.meta);
+            updateBudgetRow('seo', data.budget.seo);
+
+            // 5. Update chart
+            if (chartInstance) {
+                dataPoints++;
+                chartInstance.data.labels.push(`T+${dataPoints * 4}s`);
+                chartInstance.data.datasets[0].data.push(data.performance.ctr);
+                chartInstance.data.datasets[1].data.push(data.performance.conversions);
+                
+                // Keep chart showing latest 10 data points
+                if (chartInstance.data.labels.length > 10) {
+                    chartInstance.data.labels.shift();
+                    chartInstance.data.datasets[0].data.shift();
+                    chartInstance.data.datasets[1].data.shift();
+                }
+                chartInstance.update();
+            }
+        }
+
+        // Helper to set properties of agent badges
+        function updateAgentCard(idSuffix, status, lastLog) {
+            const card = document.getElementById(`agent${idSuffix}`);
+            const badge = document.getElementById(`badge${idSuffix}`);
+            const log = document.getElementById(`log${idSuffix}`);
+
+            if (status.toLowerCase() === 'running') {
+                badge.className = 'agent-badge badge-running';
+                badge.innerText = 'Running';
+                card.classList.add('active');
+            } else {
+                badge.className = 'agent-badge badge-idle';
+                badge.innerText = 'Idle';
+                card.classList.remove('active');
+            }
+
+            log.innerText = lastLog;
+        }
+
+        // Helper to update budget simulation numbers
+        function updateBudgetRow(idPrefix, platformData) {
+            document.getElementById(`${idPrefix}Share`).innerText = `${platformData.share}% Budget`;
+            document.getElementById(`${idPrefix}Progress`).style.width = `${platformData.share}%`;
+            document.getElementById(`${idPrefix}CTR`).innerText = `${platformData.ctr}%`;
+            document.getElementById(`${idPrefix}Conv`).innerText = platformData.conversions;
+            document.getElementById(`${idPrefix}ROI`).innerText = `${platformData.roi}x`;
+        }
+
+        // Simulates realistic telemetry logic offline
+        let simCycle = 0;
+        function generateMockTelemetry() {
+            simCycle++;
+            
+            // Randomly switch subagent activities
+            const states = ['idle', 'running'];
+            const spyState = simCycle % 3 === 0 ? 'running' : 'idle';
+            const copyState = simCycle % 3 === 1 ? 'running' : 'idle';
+            const criticState = simCycle % 3 === 2 ? 'running' : 'idle';
+            const biddingState = 'running';
+
+            const spyLog = spyState === 'running' 
+                ? `Scanning Google Search for ${currentCompetitor} keywords...` 
+                : `Listening for fresh ad deployments...`;
+            
+            const copyLog = copyState === 'running'
+                ? `Drafting counter ad copy based on competitor weakness...`
+                : `Standby. Ready to receive targets.`;
+
+            const criticLog = criticState === 'running'
+                ? `Verifying compliance against Google & Meta Ad Policies...`
+                : `Scorecard engine active.`;
+
+            const biddingLog = `Real-time allocating budget. Last event: ROI threshold shift (+8%)`;
+
+            // Prepare potential new competitor ads
+            let newCompetitorAd = null;
+            let newCounterAd = null;
+
+            if (simCycle % 3 === 1) {
+                const competitorIdeas = [
+                    {
+                        platform: 'Google Search',
+                        title: `Stop wasting money on ${businessName}`,
+                        body: `Switch to ${currentCompetitor} for an enterprise-ready dashboard that keeps your workflows lightning fast.`,
+                        competitor_name: currentCompetitor
+                    },
+                    {
+                        platform: 'Meta Ads',
+                        title: `Tired of complex setups?`,
+                        body: `${currentCompetitor} delivers premium results in under 5 minutes. Don't look back.`,
+                        competitor_name: currentCompetitor
+                    }
+                ];
+                newCompetitorAd = competitorIdeas[Math.floor(Math.random() * competitorIdeas.length)];
+            }
+
+            if (simCycle % 3 === 2) {
+                const counterIdeas = [
+                    {
+                        platform: 'Google Search',
+                        title: `Switch from ${currentCompetitor} to ${businessName}`,
+                        body: `Tired of bloated software? ${businessName} is built specifically for ${currentNiche}. 5x setup speed. Get started today.`,
+                        score: '96/100',
+                        scorecard: { length: 'Optimal (78 ch)', clickbait: 'Low (12%)', policy: 'Pass' }
+                    },
+                    {
+                        platform: 'Meta Ads',
+                        title: `Why ${businessName} outperforms ${currentCompetitor}`,
+                        body: `Direct comparison shows ${businessName} has 3x lower latency and tailored presets for ${currentLocation}. Try the alternative.`,
+                        score: '92/100',
+                        scorecard: { length: 'Optimal (108 ch)', clickbait: 'Medium (35%)', policy: 'Pass' }
+                    }
+                ];
+                newCounterAd = counterIdeas[Math.floor(Math.random() * counterIdeas.length)];
+            }
+
+            // Create progress metrics
+            const baseCtr = 1.8 + Math.random() * 2.5;
+            const baseConv = Math.floor(10 + Math.random() * 85);
+            const googleRoi = (2.2 + Math.random() * 1.5).toFixed(1);
+            const metaRoi = (1.8 + Math.random() * 1.2).toFixed(1);
+            const seoRoi = (3.5 + Math.random() * 2.0).toFixed(1);
+
+            return {
+                agents: {
+                    spy: { status: spyState, lastLog: spyLog },
+                    copywriter: { status: copyState, lastLog: copyLog },
+                    critic: { status: criticState, lastLog: criticLog },
+                    bidding: { status: biddingState, lastLog: biddingLog }
+                },
+                newCompetitorAd,
+                newCounterAd,
+                budget: {
+                    google: { share: 35 + Math.round(Math.sin(simCycle) * 5), ctr: baseCtr.toFixed(2), conversions: baseConv, roi: googleRoi },
+                    meta: { share: 45 - Math.round(Math.sin(simCycle) * 3), ctr: (baseCtr * 0.8).toFixed(2), conversions: Math.round(baseConv * 0.9), roi: metaRoi },
+                    seo: { share: 20 - Math.round(Math.sin(simCycle) * 2), ctr: (baseCtr * 1.5).toFixed(2), conversions: Math.round(baseConv * 0.4), roi: seoRoi }
+                },
+                performance: {
+                    ctr: baseCtr,
+                    conversions: baseConv
+                }
+            };
+        }
+
+        // Initialize components on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            logToTerminal('System idle. Configure targets and launch strike to begin telemetry stream.', 'warn');
+        });
+    </script>
+</body>
+</html>
