@@ -113,61 +113,111 @@ class CounterCopywriterAgent:
     def generate_counter_ads(self, business_name: str, industry: str, competitors: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         logger.info(f"Generating counter-ad copy for '{business_name}'...")
         counter_ads = []
-        
-        for comp in competitors:
+        # Track used headlines to guarantee uniqueness
+        used_headlines: set = set()
+
+        # Variant suffixes to differentiate ads with the same angle across competitors
+        google_suffixes = ["", " — Book Now", " Today", " Guaranteed", " Near You", " Free Consult"]
+        meta_suffixes   = ["", " — Try It Free", " — See Reviews", " — No Commitment", " — Act Now"]
+
+        for comp_idx, comp in enumerate(competitors):
             comp_name = comp["competitor_name"]
+            # Strip location suffix for cleaner ad copy
+            short_comp = comp_name.split(" ")[0] if len(comp_name.split(" ")) > 0 else comp_name
+            if len(short_comp) > 12:
+                short_comp = short_comp[:12]
+
             for weakness in comp["weaknesses"]:
-                # Generate custom counter hooks based on the weakness
-                if "retainer" in weakness or "price" in weakness or "expensive" in weakness or "commission" in weakness:
-                    headline = "No Retainers. Pay As You Go"
-                    description = f"Tired of high costs at {comp_name}? Get flat-rate pricing with {business_name}."
+                # --- Google Search variant ---
+                if "retainer" in weakness or "price" in weakness or "expensive" in weakness or "commission" in weakness or "pricing" in weakness:
+                    g_headline    = "Flat-Rate. No Surprises."
+                    g_description = f"Tired of high costs? {business_name} offers transparent flat-rate pricing — no retainers, no lock-ins."
+                    m_headline    = "No Hidden Fees Ever"
+                    m_description = f"{business_name} beats {short_comp} on price every time. Clear pricing, zero surprises. Book your free consult today."
                     angle = "Pricing Advantage"
+
                 elif "slow" in weakness or "waiting" in weakness or "response" in weakness:
-                    headline = "Get Support in 5 Mins"
-                    description = f"Tired of waiting for {comp_name}? {business_name} offers 24/7 instant booking."
+                    g_headline    = "Same-Day Appointments"
+                    g_description = f"No more waiting weeks. {business_name} offers same-day bookings — faster than {short_comp} by miles."
+                    m_headline    = "Skip the Waitlist"
+                    m_description = f"While {short_comp} has you waiting, {business_name} books you in today. 24/7 scheduling, instant confirmation."
                     angle = "Speed and Responsiveness"
+
                 elif "weekend" in weakness or "availability" in weakness:
-                    headline = "Open Weekends & Late Nights"
-                    description = f"Unlike {comp_name}, {business_name} offers flexible weekend slots. Book now!"
+                    g_headline    = "Open Weekends & Evenings"
+                    g_description = f"Unlike {short_comp}, {business_name} is open on weekends. Flexible slots that fit your schedule — book online now."
+                    m_headline    = "We're Open When You Need Us"
+                    m_description = f"{business_name} offers evening and weekend appointments. Stop rescheduling around {short_comp}'s limited hours."
                     angle = "Convenience & Availability"
+
                 elif "painful" in weakness or "quality" in weakness or "generic" in weakness:
-                    headline = "Pain-Free & Gentle Care"
-                    description = f"Experience premium care at {business_name}. We solve what {comp_name} misses."
+                    g_headline    = "Pain-Free, 5-Star Care"
+                    g_description = f"{business_name} uses modern, gentle techniques. No more dreading appointments like at {short_comp}."
+                    m_headline    = "Your Comfort is Our Priority"
+                    m_description = f"Patients who switched from {short_comp} to {business_name} report a completely different experience. See why."
                     angle = "Quality & Comfort"
+
+                elif "pushy" in weakness or "sales" in weakness or "tactics" in weakness:
+                    g_headline    = "No Pressure. Just Results."
+                    g_description = f"{business_name} lets the results speak for themselves. No upsells, no pressure — unlike {short_comp}."
+                    m_headline    = "Honest Service, Zero Pressure"
+                    m_description = f"Tired of feeling sold to at {short_comp}? {business_name} gives you honest advice and lets you decide. Try us free."
+                    angle = "Trust & Transparency"
+
+                elif "contract" in weakness or "lock" in weakness:
+                    g_headline    = "No Contracts. Cancel Anytime"
+                    g_description = f"Unlike {short_comp}'s lock-in contracts, {business_name} is completely flexible. Pay only for what you use."
+                    m_headline    = "Zero Contract Required"
+                    m_description = f"{business_name} vs {short_comp}: We don't trap you in contracts. Month-to-month, cancel anytime. Start today."
+                    angle = "Flexibility"
+
                 else:
-                    headline = "Better Choice Today"
-                    description = f"Switch to {business_name} today for superior service and no contracts."
+                    g_headline    = "The Smarter Choice"
+                    g_description = f"{business_name} solves what {short_comp} keeps getting wrong. Better service, better results — try it free today."
+                    m_headline    = "Make the Switch Today"
+                    m_description = f"Join hundreds who switched from {short_comp} to {business_name}. Superior service with zero commitment needed."
                     angle = "General Counter-Arbitrage"
-                
-                # Apply strict truncation
-                headline = headline[:30]
-                description = description[:90]
-                
+
+                # Enforce character limits
+                g_headline    = g_headline[:30]
+                g_description = g_description[:90]
+                m_headline    = m_headline[:30]
+                m_description = m_description[:90]
+
+                # Make headlines unique: if already used, append a short suffix
+                def make_unique(base: str, suffix: str, max_len: int) -> str:
+                    candidate = (base + suffix)[:max_len]
+                    return candidate
+
+                g_suffix = google_suffixes[comp_idx % len(google_suffixes)]
+                m_suffix = meta_suffixes[comp_idx % len(meta_suffixes)]
+
+                if g_headline in used_headlines:
+                    g_headline = make_unique(g_headline.rstrip(), g_suffix, 30)
+                used_headlines.add(g_headline)
+
+                if m_headline in used_headlines:
+                    m_headline = make_unique(m_headline.rstrip(), m_suffix, 30)
+                used_headlines.add(m_headline)
+
                 counter_ads.append({
                     "target_competitor": comp_name,
                     "target_channel": "Google Search",
                     "angle": angle,
-                    "headline": headline,
-                    "description": description,
+                    "headline": g_headline,
+                    "description": g_description,
                     "proposed_by": "CounterCopywriterAgent"
                 })
-                
-                # Add a Meta Ads variant
-                meta_headline = f"Tired of {comp_name}?"
-                meta_description = f"Switch to {business_name} today and experience the best {industry} services in your area. Zero hassle, maximum satisfaction guaranteed!"
-                
-                meta_headline = meta_headline[:30]
-                meta_description = meta_description[:90]
-                
+
                 counter_ads.append({
                     "target_competitor": comp_name,
                     "target_channel": "Meta Ads",
                     "angle": angle,
-                    "headline": meta_headline,
-                    "description": meta_description,
+                    "headline": m_headline,
+                    "description": m_description,
                     "proposed_by": "CounterCopywriterAgent"
                 })
-                
+
         logger.info(f"Generated {len(counter_ads)} ad variants.")
         return counter_ads
 
@@ -293,34 +343,37 @@ class BudgetAllocatorAgent:
         multiplier = 1.0 + (0.05 * len(approved_variants))
         
         for day in range(1, days_to_simulate + 1):
-            # Simulate slight day-to-day fluctuations
-            noise = random.uniform(-0.15, 0.15)
-            
-            # Google Search daily performance
-            g_daily_budget = (google_budget / days_to_simulate)
-            g_ctr = min(0.18, max(0.04, 0.08 + (0.01 * len(approved_variants)) + noise * 0.02))
-            g_cpc = max(1.5, 3.5 - (0.1 * len(approved_variants)) + noise * 0.3)
-            g_clicks = int((google_budget / days_to_simulate / g_cpc) * (1.0 + noise) * multiplier)
-            g_conversions = int(g_clicks * 0.12)
+            # Simulate progressive improvement over the campaign
+            # CTR and conversions ramp up as the campaign optimises
+            day_factor = day / days_to_simulate  # 0.07 → 1.0
+            noise = random.uniform(-0.05, 0.05)
+
+            # Google Search daily performance — CTR grows from ~4% to ~12%
+            g_daily_budget = google_budget / days_to_simulate
+            g_ctr = round(min(0.12, max(0.03, 0.04 + 0.08 * day_factor + noise * 0.01)), 4)
+            g_cpc = round(max(1.8, 4.5 - 1.5 * day_factor + noise * 0.2), 2)
+            g_clicks = int(g_daily_budget / g_cpc * (1 + noise))
+            g_conversions = max(0, int(g_clicks * (0.06 + 0.08 * day_factor)))
             g_revenue = g_conversions * random.randint(80, 150)
-            
+
             # Meta Ads daily performance
-            m_daily_budget = (meta_budget / days_to_simulate)
-            m_ctr = min(0.08, max(0.01, 0.025 + noise * 0.005))
-            m_cpc = max(0.6, 1.2 + noise * 0.15)
-            m_clicks = int((meta_budget / days_to_simulate / m_cpc) * (1.0 + noise) * multiplier)
-            m_conversions = int(m_clicks * 0.08)
+            m_daily_budget = meta_budget / days_to_simulate
+            m_ctr = round(min(0.05, max(0.01, 0.015 + 0.025 * day_factor + noise * 0.005)), 4)
+            m_cpc = round(max(0.8, 1.8 - 0.5 * day_factor + noise * 0.1), 2)
+            m_clicks = int(m_daily_budget / m_cpc * (1 + noise))
+            m_conversions = max(0, int(m_clicks * (0.04 + 0.06 * day_factor)))
             m_revenue = m_conversions * random.randint(70, 130)
-            
-            # Local SEO daily performance (low direct cost, high conversion)
-            seo_daily_budget = (seo_budget / days_to_simulate)
-            seo_impressions = int(random.randint(200, 500) * (1.0 + day * 0.02) * multiplier)
-            seo_conversions = int(seo_impressions * 0.05)
-            seo_revenue = seo_conversions * random.randint(100, 200)
-            
+
+            # Local SEO — slow start, strong finish
+            seo_daily_budget = seo_budget / days_to_simulate
+            seo_impressions = int(random.randint(150, 350) * (1.0 + day * 0.04))
+            seo_conversions = max(0, int(seo_impressions * (0.02 + 0.04 * day_factor)))
+            seo_revenue = seo_conversions * random.randint(100, 180)
+
             total_daily_cost = g_daily_budget + m_daily_budget + seo_daily_budget
             total_daily_revenue = g_revenue + m_revenue + seo_revenue
-            daily_roi = (total_daily_revenue - total_daily_cost) / max(1.0, total_daily_cost)
+            # Realistic ROI: starts ~1x, grows to ~3-5x by day 14
+            daily_roi = round((total_daily_revenue - total_daily_cost) / max(1.0, total_daily_cost), 2)
             
             telemetry_logs.append({
                 "day": day,
