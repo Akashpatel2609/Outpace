@@ -409,6 +409,7 @@
 
             // Start system progression
             isCampaignRunning = true;
+            totalRounds = 0;
             document.getElementById('statusDot').className = 'pulse-dot';
             document.getElementById('statusText').innerText = 'Strike Active';
             
@@ -425,27 +426,65 @@
             }
             dataPoints = 0;
 
-            // Start polling (which falls back to simulated stream if not found)
+            // Start polling — stops automatically after MAX_ROUNDS
             if (pollingInterval) clearInterval(pollingInterval);
             pollTelemetry();
             pollingInterval = setInterval(pollTelemetry, 4000);
         });
 
+        const MAX_ROUNDS = 14; // 14 days × 4s = ~56 seconds total
+        let totalRounds = 0;
+
+        function completeCampaign() {
+            isCampaignRunning = false;
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+
+            // Update status
+            document.getElementById('statusDot').className = 'pulse-dot';
+            document.getElementById('statusDot').style.background = '#10b981';
+            document.getElementById('statusText').innerText = 'Analysis Complete';
+
+            // Reset button to allow re-run
+            const btn = document.getElementById('btnLaunch');
+            btn.disabled = false;
+            btn.innerHTML = `Run Again`;
+            btn.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))';
+
+            logToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'cyan');
+            logToTerminal('OUTPACE ANALYSIS COMPLETE — 14-day simulation finished.', 'success');
+            logToTerminal(`Total competitor ads captured: ${document.querySelectorAll('.competitor-ad-card').length}`, 'success');
+            logToTerminal(`Total counter-ads generated:  ${document.querySelectorAll('.counter-ad-card').length}`, 'success');
+            logToTerminal('Review your counter-ads above and export to your ad platform.', 'warn');
+            logToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'cyan');
+        }
+
         // Main telemetry fetch / simulation logic
         async function pollTelemetry() {
             if (!isCampaignRunning) return;
 
+            // Stop after MAX_ROUNDS
+            totalRounds++;
+            if (totalRounds > MAX_ROUNDS) {
+                completeCampaign();
+                return;
+            }
+
+            const dayLabel = `Day ${totalRounds}/${MAX_ROUNDS}`;
             let telemetryData = null;
 
             try {
                 const response = await fetch('/api/telemetry');
                 if (response.ok) {
                     telemetryData = await response.json();
-                    logToTerminal('Fetched fresh telemetry from API.', 'cyan');
+                    logToTerminal(`[${dayLabel}] Telemetry received from API engine.`, 'cyan');
+                } else {
+                    throw new Error(`status ${response.status}`);
                 }
             } catch (err) {
                 // Fallback to locally computed simulation values
                 telemetryData = generateMockTelemetry();
+                logToTerminal(`[${dayLabel}] Running local simulation engine...`, 'warn');
             }
 
             if (telemetryData) {
