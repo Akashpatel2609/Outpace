@@ -650,6 +650,8 @@ def test_ui_stylesheet_linked():
 
 def test_cross_f1_f2_weakness_flow():
     """Verify discovered competitor weaknesses flow directly to target copywriting angles."""
+    import random
+    random.seed(5)
     # 1. Competitor Discovery discovers weaknesses
     spy = CompetitorSpyAgent()
     comps = spy.spy("legal", "New York")

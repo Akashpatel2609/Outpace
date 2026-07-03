@@ -1,10 +1,76 @@
 import re
 import random
 import logging
+import os
+import json
 from typing import List, Dict, Any, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Outpace.Agents")
+
+def call_llm(prompt: str, system_prompt: Optional[str] = None) -> str:
+    """
+    Generic LLM API wrapper placeholder.
+    Checks for the LLM_API_KEY environment variable.
+    If LLM_API_KEY is not set or empty, raises a ValueError.
+    If LLM_API_KEY is 'dummy', returns structured mock data containing '[LLM]' markers.
+    If LLM_API_KEY is 'error_trigger', raises a RuntimeError to simulate API failure.
+    Otherwise, acts as a placeholder for real LLM client integration.
+    """
+    api_key = os.environ.get("LLM_API_KEY")
+    if not api_key:
+        raise ValueError("LLM_API_KEY is not set or is empty.")
+    
+    if api_key == "error_trigger":
+        raise RuntimeError("Simulated LLM API connection error or timeout.")
+        
+    if api_key == "dummy":
+        if "Find competitors" in prompt or "spy" in prompt.lower():
+            mock_data = [
+                {
+                    "competitor_name": "[LLM] Premium Competitor",
+                    "headline": "[LLM] Premium Service",
+                    "description": "[LLM] We offer high quality services with no hidden fees.",
+                    "channels": ["Google Search", "Meta Ads"],
+                    "estimated_monthly_spend": 5000,
+                    "weaknesses": ["high retainer fees", "slow communication"]
+                },
+                {
+                    "competitor_name": "[LLM] Apex Solutions",
+                    "headline": "[LLM] Top Rated Solutions",
+                    "description": "[LLM] Fast and reliable customer service.",
+                    "channels": ["Google Search"],
+                    "estimated_monthly_spend": 3000,
+                    "weaknesses": ["outdated technology", "no weekend availability"]
+                }
+            ]
+            return json.dumps(mock_data)
+            
+        elif "Generate counter-ads" in prompt or "copywrite" in prompt.lower():
+            mock_ads = [
+                {
+                    "target_competitor": "[LLM] Premium Competitor",
+                    "target_channel": "Google Search",
+                    "angle": "Pricing Advantage",
+                    "headline": "[LLM] Flat-Rate Pricing",
+                    "description": "[LLM] Stop paying high retainer fees. Switch to flat-rate pricing.",
+                    "proposed_by": "CounterCopywriterAgent"
+                },
+                {
+                    "target_competitor": "[LLM] Apex Solutions",
+                    "target_channel": "Meta Ads",
+                    "angle": "Convenience & Availability",
+                    "headline": "[LLM] Open Weekends",
+                    "description": "[LLM] Need weekend support? We are open Saturdays and Sundays.",
+                    "proposed_by": "CounterCopywriterAgent"
+                }
+            ]
+            return json.dumps(mock_ads)
+
+    # For other values, it represents a real integration placeholder.
+    # When fully implemented, this would interface with a real LLM SDK.
+    raise NotImplementedError("Real LLM client integration is not yet implemented.")
+
 
 class CompetitorSpyAgent:
     """
@@ -42,6 +108,37 @@ class CompetitorSpyAgent:
 
     def spy(self, industry: str, location: str, competitor: Optional[str] = None) -> List[Dict[str, Any]]:
         logger.info(f"Spying on competitors in industry '{industry}' at location '{location}'...")
+        
+        # 1. Attempt LLM Integration Path
+        api_key = os.environ.get("LLM_API_KEY")
+        if api_key:
+            try:
+                prompt = (
+                    f"Find competitors in the {industry} industry at location {location}. "
+                    f"Target competitor to include: {competitor or 'None'}."
+                )
+                logger.info("LLM_API_KEY detected. Invoking call_llm for competitor spying...")
+                llm_response = call_llm(prompt, system_prompt="You are a competitor research assistant.")
+                
+                # Parse LLM Response
+                competitors_data = json.loads(llm_response)
+                
+                # Validate response structure
+                if not isinstance(competitors_data, list):
+                    raise ValueError("LLM response is not a list")
+                for c in competitors_data:
+                    required_keys = ["competitor_name", "headline", "description", "channels", "estimated_monthly_spend", "weaknesses"]
+                    if not all(k in c for k in required_keys):
+                        raise KeyError("Missing required keys in LLM competitor object")
+                
+                logger.info(f"LLM successfully discovered {len(competitors_data)} competitors.")
+                return competitors_data
+                
+            except Exception as e:
+                logger.warning(f"LLM competitor discovery failed: {e}. Falling back to combinatorial engine.")
+                # Flow falls through to combinatorial engine below
+
+        # 2. Local Combinatorial Engine Path (Fallback)
         competitors_data = []
         
         # Clean up industry string for templating
@@ -83,6 +180,7 @@ class CompetitorSpyAgent:
         return competitors_data
 
 
+
 class CounterCopywriterAgent:
     """
     Creates high-converting counter ad variants targeting competitor weaknesses.
@@ -92,6 +190,38 @@ class CounterCopywriterAgent:
 
     def generate_counter_ads(self, business_name: str, industry: str, competitors: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         logger.info(f"Generating counter-ad copy for '{business_name}'...")
+        
+        # 1. Attempt LLM Integration Path
+        api_key = os.environ.get("LLM_API_KEY")
+        if api_key:
+            try:
+                # Prepare prompt for counter-ads copywriting
+                prompt = (
+                    f"Generate counter-ads for business '{business_name}' in the '{industry}' industry. "
+                    f"Target competitors and their weaknesses: {json.dumps(competitors)}"
+                )
+                logger.info("LLM_API_KEY detected. Invoking call_llm for counter-ad generation...")
+                llm_response = call_llm(prompt, system_prompt="You are a professional ad copywriter.")
+                
+                # Parse LLM Response
+                counter_ads = json.loads(llm_response)
+                
+                # Validation
+                if not isinstance(counter_ads, list):
+                    raise ValueError("LLM response is not a list")
+                for ad in counter_ads:
+                    required_keys = ["target_competitor", "target_channel", "angle", "headline", "description", "proposed_by"]
+                    if not all(k in ad for k in required_keys):
+                        raise KeyError("Missing required keys in LLM counter-ad object")
+                
+                logger.info(f"LLM successfully generated {len(counter_ads)} ad variants.")
+                return counter_ads
+                
+            except Exception as e:
+                logger.warning(f"LLM counter-ad copywriting failed: {e}. Falling back to combinatorial engine.")
+                # Flow falls through to combinatorial engine below
+
+        # 2. Local Combinatorial Engine Path (Fallback)
         counter_ads = []
         # Track used headlines to guarantee uniqueness
         used_headlines: set = set()
@@ -214,6 +344,7 @@ class CounterCopywriterAgent:
 
         logger.info(f"Generated {len(counter_ads)} ad variants.")
         return counter_ads
+
 
 
 class CreativeCriticAgent:

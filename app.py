@@ -76,6 +76,21 @@ def analyze(payload: AnalyzeRequest) -> Dict[str, Any]:
         # Transform the raw logs returned by orchestrator.run_arbitrage_strategy 
         # into a list of 14 single-day frame dictionaries under app_state["telemetry_logs"].
         telemetry_frames = []
+        
+        # Guard: if no competitors were found, skip frame construction entirely
+        if not result.get("competitors"):
+            app_state["telemetry_logs"] = []
+            app_state["runs_count"] += 1
+            app_state["system_status"] = "Ready"
+            return {
+                "success": True,
+                "message": "No competitors detected. Analysis complete.",
+                "business_name": result["business_name"],
+                "competitors_detected": [],
+                "approved_ads_count": 0,
+                "budget_allocation": result.get("budget_allocation", {})
+            }
+        
         for day in range(1, 15):
             log = result["telemetry_logs"][day - 1]
             
