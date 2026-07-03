@@ -566,97 +566,103 @@
 
         // Simulates realistic telemetry logic offline
         let simCycle = 0;
+
+        // Rich ad banks — rotated every poll so something ALWAYS appears
+        const competitorAdBank = [
+            { platform: 'Google Search', title: `#1 Rated in Your Area`, body: `Thousands trust us for fast, reliable service. No contracts, no surprises. Book today.` },
+            { platform: 'Meta Ads',      title: `Limited Time Offer`,     body: `Get 20% off your first month. Premium quality at an unbeatable price. Act now!` },
+            { platform: 'Google Search', title: `Same-Day Appointments`,  body: `We have openings today. Flexible scheduling, friendly staff. Call us now.` },
+            { platform: 'Meta Ads',      title: `Award-Winning Service`,  body: `Voted best local provider 3 years running. Find out why thousands choose us.` },
+            { platform: 'Google Search', title: `Free Consultation`,       body: `No obligations, no pressure. Get expert advice for free today. Schedule online.` },
+            { platform: 'Meta Ads',      title: `Don't Pay Too Much`,      body: `Compare our prices and see the difference. Premium service, honest pricing guaranteed.` },
+        ];
+
+        const counterAdBank = [
+            { platform: 'Google Search', score: '97/100', scorecard: { length: 'Optimal (28 ch)', clickbait: 'Low (9%)',  policy: 'Pass' } },
+            { platform: 'Meta Ads',      score: '94/100', scorecard: { length: 'Optimal (26 ch)', clickbait: 'Low (12%)', policy: 'Pass' } },
+            { platform: 'Google Search', score: '91/100', scorecard: { length: 'Optimal (25 ch)', clickbait: 'Low (8%)',  policy: 'Pass' } },
+            { platform: 'Meta Ads',      score: '88/100', scorecard: { length: 'Optimal (29 ch)', clickbait: 'Low (14%)', policy: 'Pass' } },
+        ];
+
+        const counterHeadlines = [
+            `Open Weekends & Same Day`,
+            `No Contracts. Pay As You Go`,
+            `Faster. Friendlier. Guaranteed.`,
+            `Get Support in Under 5 Mins`,
+            `Free Consult — No Pressure`,
+            `Flat-Rate. No Hidden Fees.`,
+        ];
+
+        const counterBodies = [
+            (b, c, n) => `Tired of long waits at ${c}? ${b} offers instant booking and same-day availability in ${n}.`,
+            (b, c, n) => `Unlike ${c}, ${b} charges flat-rate with no hidden fees. Trusted by locals across ${n}.`,
+            (b, c, n) => `${b} outperforms ${c} in speed, pricing, and customer satisfaction — rated #1 in ${n}.`,
+            (b, c, n) => `Switch to ${b} today. We solve the problems ${c} keeps ignoring. Zero commitment needed.`,
+        ];
+
         function generateMockTelemetry() {
             simCycle++;
-            
-            // Randomly switch subagent activities
-            const states = ['idle', 'running'];
-            const spyState = simCycle % 3 === 0 ? 'running' : 'idle';
-            const copyState = simCycle % 3 === 1 ? 'running' : 'idle';
-            const criticState = simCycle % 3 === 2 ? 'running' : 'idle';
-            const biddingState = 'running';
 
-            const spyLog = spyState === 'running' 
-                ? `Scanning Google Search for ${currentCompetitor} keywords...` 
-                : `Listening for fresh ad deployments...`;
-            
-            const copyLog = copyState === 'running'
-                ? `Drafting counter ad copy based on competitor weakness...`
-                : `Standby. Ready to receive targets.`;
+            // Agent states cycle: spy → copywriter → critic (bidding always on)
+            const phase = simCycle % 3;
+            const spyState       = phase === 0 ? 'running' : 'idle';
+            const copyState      = phase === 1 ? 'running' : 'idle';
+            const criticState    = phase === 2 ? 'running' : 'idle';
 
-            const criticLog = criticState === 'running'
-                ? `Verifying compliance against Google & Meta Ad Policies...`
-                : `Scorecard engine active.`;
+            const spyLog     = spyState     === 'running' ? `Scanning Google Search for "${currentCompetitor}" ad keywords...`             : `Monitoring ad libraries. Waiting for next rotation.`;
+            const copyLog    = copyState    === 'running' ? `Drafting counter-ad targeting competitor weakness: pricing & availability...` : `Standby. Ready to receive new spy intel.`;
+            const criticLog  = criticState  === 'running' ? `Auditing copy: 30-char headline ✓, 90-char description ✓, policy ✓...`       : `Scorecard engine active. All approved ads queued.`;
+            const biddingLog = `Budget rebalanced: Google +${(Math.random()*4+1).toFixed(1)}%, Meta -${(Math.random()*3+1).toFixed(1)}%. ROI trending up.`;
 
-            const biddingLog = `Real-time allocating budget. Last event: ROI threshold shift (+8%)`;
+            // Always show a new competitor ad AND a new counter-ad every cycle
+            const compTemplate  = competitorAdBank[simCycle % competitorAdBank.length];
+            const counterBase   = counterAdBank[simCycle % counterAdBank.length];
+            const headline      = counterHeadlines[simCycle % counterHeadlines.length];
+            const bodyFn        = counterBodies[simCycle % counterBodies.length];
 
-            // Prepare potential new competitor ads
-            let newCompetitorAd = null;
-            let newCounterAd = null;
+            const newCompetitorAd = {
+                platform:        compTemplate.platform,
+                title:           compTemplate.title,
+                body:            compTemplate.body,
+                competitor_name: currentCompetitor || 'Local Competitor'
+            };
 
-            if (simCycle % 3 === 1) {
-                const competitorIdeas = [
-                    {
-                        platform: 'Google Search',
-                        title: `Stop wasting money on ${businessName}`,
-                        body: `Switch to ${currentCompetitor} for an enterprise-ready dashboard that keeps your workflows lightning fast.`,
-                        competitor_name: currentCompetitor
-                    },
-                    {
-                        platform: 'Meta Ads',
-                        title: `Tired of complex setups?`,
-                        body: `${currentCompetitor} delivers premium results in under 5 minutes. Don't look back.`,
-                        competitor_name: currentCompetitor
-                    }
-                ];
-                newCompetitorAd = competitorIdeas[Math.floor(Math.random() * competitorIdeas.length)];
-            }
+            const newCounterAd = {
+                platform:  counterBase.platform,
+                title:     headline,
+                body:      bodyFn(businessName || 'Your Business', currentCompetitor || 'them', currentNiche || 'your area'),
+                score:     counterBase.score,
+                scorecard: counterBase.scorecard
+            };
 
-            if (simCycle % 3 === 2) {
-                const counterIdeas = [
-                    {
-                        platform: 'Google Search',
-                        title: `Switch from ${currentCompetitor} to ${businessName}`,
-                        body: `Tired of bloated software? ${businessName} is built specifically for ${currentNiche}. 5x setup speed. Get started today.`,
-                        score: '96/100',
-                        scorecard: { length: 'Optimal (78 ch)', clickbait: 'Low (12%)', policy: 'Pass' }
-                    },
-                    {
-                        platform: 'Meta Ads',
-                        title: `Why ${businessName} outperforms ${currentCompetitor}`,
-                        body: `Direct comparison shows ${businessName} has 3x lower latency and tailored presets for ${currentLocation}. Try the alternative.`,
-                        score: '92/100',
-                        scorecard: { length: 'Optimal (108 ch)', clickbait: 'Medium (35%)', policy: 'Pass' }
-                    }
-                ];
-                newCounterAd = counterIdeas[Math.floor(Math.random() * counterIdeas.length)];
-            }
+            // Performance metrics trend upward as cycles increase
+            const trendBoost = Math.min(simCycle * 0.12, 3.5);
+            const baseCtr    = parseFloat((1.8 + trendBoost + Math.random() * 0.8).toFixed(2));
+            const baseConv   = Math.floor(8 + simCycle * 3 + Math.random() * 20);
+            const googleRoi  = (2.2 + trendBoost * 0.4 + Math.random() * 0.8).toFixed(1);
+            const metaRoi    = (1.8 + trendBoost * 0.3 + Math.random() * 0.6).toFixed(1);
+            const seoRoi     = (3.5 + trendBoost * 0.5 + Math.random() * 1.0).toFixed(1);
 
-            // Create progress metrics
-            const baseCtr = 1.8 + Math.random() * 2.5;
-            const baseConv = Math.floor(10 + Math.random() * 85);
-            const googleRoi = (2.2 + Math.random() * 1.5).toFixed(1);
-            const metaRoi = (1.8 + Math.random() * 1.2).toFixed(1);
-            const seoRoi = (3.5 + Math.random() * 2.0).toFixed(1);
+            // Budget shares shift slightly each cycle — always sum to 100
+            const gShare = Math.min(65, Math.max(35, 50 + Math.round(Math.sin(simCycle * 0.7) * 8)));
+            const mShare = Math.min(45, Math.max(20, 30 - Math.round(Math.sin(simCycle * 0.5) * 5)));
+            const sShare = 100 - gShare - mShare;
 
             return {
                 agents: {
-                    spy: { status: spyState, lastLog: spyLog },
-                    copywriter: { status: copyState, lastLog: copyLog },
-                    critic: { status: criticState, lastLog: criticLog },
-                    bidding: { status: biddingState, lastLog: biddingLog }
+                    spy:        { status: spyState,    lastLog: spyLog     },
+                    copywriter: { status: copyState,   lastLog: copyLog    },
+                    critic:     { status: criticState, lastLog: criticLog  },
+                    bidding:    { status: 'running',   lastLog: biddingLog }
                 },
                 newCompetitorAd,
                 newCounterAd,
                 budget: {
-                    google: { share: 35 + Math.round(Math.sin(simCycle) * 5), ctr: baseCtr.toFixed(2), conversions: baseConv, roi: googleRoi },
-                    meta: { share: 45 - Math.round(Math.sin(simCycle) * 3), ctr: (baseCtr * 0.8).toFixed(2), conversions: Math.round(baseConv * 0.9), roi: metaRoi },
-                    seo: { share: 20 - Math.round(Math.sin(simCycle) * 2), ctr: (baseCtr * 1.5).toFixed(2), conversions: Math.round(baseConv * 0.4), roi: seoRoi }
+                    google: { share: gShare, ctr: baseCtr.toFixed(2),               conversions: baseConv,                    roi: `${googleRoi}x` },
+                    meta:   { share: mShare, ctr: (baseCtr * 0.75).toFixed(2),       conversions: Math.round(baseConv * 0.85), roi: `${metaRoi}x`  },
+                    seo:    { share: sShare, ctr: (baseCtr * 1.3).toFixed(2),        conversions: Math.round(baseConv * 0.45), roi: `${seoRoi}x`   }
                 },
-                performance: {
-                    ctr: baseCtr,
-                    conversions: baseConv
-                }
+                performance: { ctr: baseCtr, conversions: baseConv }
             };
         }
 

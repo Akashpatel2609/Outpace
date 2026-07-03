@@ -85,20 +85,17 @@ def analyze(payload: AnalyzeRequest) -> Dict[str, Any]:
             critic_status = "running" if day % 3 == 0 else "idle"
             bidding_status = "running"
             
-            # newCompetitorAd
-            newCompetitorAd = None
-            comp = None
-            if day % 3 == 1 and result.get("competitors"):
-                comp = result["competitors"][(day // 3) % len(result["competitors"])]
-                platform = comp["channels"][0] if comp.get("channels") else "Google Search"
-                newCompetitorAd = {
-                    "platform": platform,
-                    "title": comp["headline"],
-                    "body": comp["description"],
-                    "competitor_name": comp["competitor_name"]
-                }
+            # newCompetitorAd — always show one, rotate through competitors
+            comp = result["competitors"][day % len(result["competitors"])]
+            platform = comp["channels"][0] if comp.get("channels") else "Google Search"
+            newCompetitorAd = {
+                "platform": platform,
+                "title": comp["headline"],
+                "body": comp["description"],
+                "competitor_name": comp["competitor_name"]
+            }
                 
-            spy_log = f"Scanning Google Search for {comp['competitor_name'] if comp else payload.competitor} keywords..." if spy_status == "running" else "Listening for fresh ad deployments..."
+            spy_log = f"Scanning Google Search for {comp['competitor_name']} keywords..." if spy_status == "running" else "Listening for fresh ad deployments..."
             copywriter_log = "Drafting counter ad copy based on competitor weakness..." if copywriter_status == "running" else "Standby. Ready to receive targets."
             critic_log = "Verifying compliance against Google & Meta Ad Policies..." if critic_status == "running" else "Scorecard engine active."
             bidding_log = "Real-time allocating budget. Last event: ROI threshold shift (+8%)"
@@ -110,10 +107,10 @@ def analyze(payload: AnalyzeRequest) -> Dict[str, Any]:
                 "bidding": {"status": bidding_status, "lastLog": bidding_log}
             }
                 
-            # newCounterAd
+            # newCounterAd — always show one, rotate through approved ads
             newCounterAd = None
-            if day % 3 == 2 and result.get("approved_ads"):
-                ad = result["approved_ads"][(day // 3) % len(result["approved_ads"])]
+            if result.get("approved_ads"):
+                ad = result["approved_ads"][day % len(result["approved_ads"])]
                 newCounterAd = {
                     "platform": ad["target_channel"],
                     "title": ad["headline"],
