@@ -34,3 +34,6 @@ stress_test.py
 # Agent internals (not needed for submission)
 .agents/
  .agents/
+
+# Vercel
+.vercel/

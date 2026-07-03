@@ -1,6 +1,7 @@
 import os
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 from agents import OutpaceOrchestrator
@@ -9,6 +10,15 @@ app = FastAPI(
     title="Outpace API",
     description="Autonomous competitor ad arbitrage tool backend",
     version="1.0.0"
+)
+
+# Allow Vercel frontend origin and local dev
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # In-memory storage for workspace state and simulated telemetry
@@ -245,3 +255,10 @@ def get_telemetry(request: Request) -> Dict[str, Any]:
 if __name__ == "__main__":
     # Allow running server directly using: python app.py
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+
+# Vercel serverless handler (Mangum wraps FastAPI as an ASGI handler)
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except ImportError:
+    pass  # mangum not available in local dev — that's fine
