@@ -12,91 +12,71 @@ class CompetitorSpyAgent:
     Provides realistic competitors, their current ads, channels, and weaknesses.
     """
     def __init__(self):
-        # Predefined templates for common industries to make the mockup highly realistic
-        self.industry_templates = {
-            "legal": {
-                "competitors": ["Apex Law Group", "Justice Associates", "The Vanguard Firm"],
-                "weaknesses": ["high retainer fees", "slow communication", "complex pricing structure", "lack of mobile app"],
-                "ad_headlines": ["Need Legal Help?", "Top Rated Attorneys", "Experienced Lawyers Near You"],
-                "ad_descriptions": ["Contact us today for a consultation. High success rate, premium legal counsel.", "Professional legal defense and representation. Call for a premium retainer options."]
-            },
-            "dentist": {
-                "competitors": ["Bright Smile Dental", "Metro Dental Care", "Family Dentistry Clinic"],
-                "weaknesses": ["no weekend availability", "long waiting times", "painful procedures reported", "high cosmetic pricing"],
-                "ad_headlines": ["Gentle Family Dental Care", "Affordable Cosmetic Dentist", "Get Your Brightest Smile Today"],
-                "ad_descriptions": ["We accept most insurances. Book your appointment online today.", "Transform your smile with premium veneers and cleaning services. High-end modern clinic."]
-            },
-            "real estate": {
-                "competitors": ["Premier Realty", "Apex Home Finders", "Horizon Estates"],
-                "weaknesses": ["slow agent response", "pushy sales tactics", "limited listings in hot zones", "high commission rates"],
-                "ad_headlines": ["Find Your Dream Home", "Sell Your House Fast", "Top Rated Real Estate Agents"],
-                "ad_descriptions": ["Check out our exclusive local listings. Free home valuation today.", "Expert real estate agents helping you buy or sell. 5% standard commission rates."]
-            },
-            "default": {
-                "competitors": ["Market Leader Corp", "Standard Solutions Inc.", "Global Services Group"],
-                "weaknesses": ["generic customer service", "expensive contract lock-ins", "outdated web platform", "no free trial"],
-                "ad_headlines": ["Number 1 Choice in Industry", "Professional Services", "Leading Solutions for You"],
-                "ad_descriptions": ["Scale your operations with the most expensive and premium provider in town.", "Get started with the industry standard. High contracts required."]
-            }
-        }
+        # Dynamic pools for combinatorial generation
+        self.pain_points = [
+            "high cost", "slow service", "poor customer support", 
+            "outdated technology", "lack of transparency", "hidden fees",
+            "pushy sales tactics", "unreliable availability", "long wait times",
+            "generic solutions", "inflexible contracts", "hard to reach",
+            "inconsistent quality", "expensive retainer", "no weekend availability"
+        ]
+        
+        self.ad_headlines = [
+            "Premium {Industry} Services", "Top Rated {Industry} Near You",
+            "Expert {Industry} Solutions", "Affordable {Industry} Professionals",
+            "Your Local {Industry} Experts", "Fast & Reliable {Industry}",
+            "#1 Choice for {Industry}", "Award-Winning {Industry}"
+        ]
+        
+        self.ad_descriptions = [
+            "Contact us today for the best {industry} service. Highly rated by locals.",
+            "We provide top-tier {industry} solutions. Call now for a free quote.",
+            "Looking for reliable {industry}? We have you covered with our expert team.",
+            "Professional {industry} services at competitive rates. Book online today.",
+            "Get started with the industry standard in {industry}. Satisfaction guaranteed.",
+            "Transform your experience with our premium {industry} platform. Reach out now."
+        ]
+        
+        self.comp_prefixes = ["Apex", "Prime", "Elite", "Summit", "Vanguard", "Horizon", "Pinnacle", "Local", "First Choice", "Pro"]
+        self.comp_suffixes = ["Solutions", "Group", "Services", "Partners", "Associates", "Corp", "Inc", "Professionals"]
 
     def spy(self, industry: str, location: str, competitor: Optional[str] = None) -> List[Dict[str, Any]]:
         logger.info(f"Spying on competitors in industry '{industry}' at location '{location}'...")
-        
-        # Match industry templates
-        ind_key = "default"
-        for key in self.industry_templates:
-            if key in industry.lower():
-                ind_key = key
-                break
-        
-        template = self.industry_templates[ind_key]
         competitors_data = []
         
+        # Clean up industry string for templating
+        ind_title = industry.title()
+        ind_lower = industry.lower()
+
+        num_competitors = random.randint(3, 5)
+        
+        # If a specific competitor is provided, make sure they are in the list
         if competitor:
-            # Dynamically construct and prepend custom competitor
-            if ind_key == "legal":
-                pricing_options = [w for w in template["weaknesses"] if "retainer" in w or "pricing" in w]
-                non_pricing_options = [w for w in template["weaknesses"] if "retainer" not in w and "pricing" not in w]
-                pricing_weak = random.choice(pricing_options)
-                non_pricing_weak = random.choice(non_pricing_options)
-                comp_weaknesses = [pricing_weak, non_pricing_weak]
-            else:
-                comp_weaknesses = random.sample(template["weaknesses"], 2)
-            
-            comp_headline = f"Official {competitor}"[:30]
+            comp_headline = random.choice(self.ad_headlines).replace("{Industry}", ind_title)
             comp_desc = f"Looking for {competitor} in {location}? Contact us."[:90]
-            
             competitors_data.append({
                 "competitor_name": f"{competitor} {location}",
-                "headline": comp_headline,
+                "headline": comp_headline[:30],
                 "description": comp_desc,
                 "channels": ["Google Search", "Meta Ads"],
                 "estimated_monthly_spend": random.randint(1500, 8500),
-                "weaknesses": comp_weaknesses
+                "weaknesses": random.sample(self.pain_points, 2)
             })
+            num_competitors -= 1
             
-        for comp in template["competitors"]:
-            if ind_key == "legal":
-                pricing_options = [w for w in template["weaknesses"] if "retainer" in w or "pricing" in w]
-                non_pricing_options = [w for w in template["weaknesses"] if "retainer" not in w and "pricing" not in w]
-                pricing_weak = random.choice(pricing_options)
-                non_pricing_weak = random.choice(non_pricing_options)
-                weaknesses = [pricing_weak, non_pricing_weak]
-            else:
-                weaknesses = random.sample(template["weaknesses"], 2)
-                
-            headline = random.choice(template["ad_headlines"])
-            description = random.choice(template["ad_descriptions"])
+        for _ in range(num_competitors):
+            comp_name = f"{random.choice(self.comp_prefixes)} {random.choice(self.comp_suffixes)}"
+            headline = random.choice(self.ad_headlines).replace("{Industry}", ind_title)[:30]
+            description = random.choice(self.ad_descriptions).replace("{industry}", ind_lower)[:90]
             monthly_spend = random.randint(1500, 8500)
             
             competitors_data.append({
-                "competitor_name": f"{comp} {location}",
+                "competitor_name": f"{comp_name} {location}",
                 "headline": headline,
                 "description": description,
                 "channels": ["Google Search", "Meta Ads"],
                 "estimated_monthly_spend": monthly_spend,
-                "weaknesses": weaknesses
+                "weaknesses": random.sample(self.pain_points, 2)
             })
             
         logger.info(f"Discovered {len(competitors_data)} competitors in {location}.")
@@ -128,77 +108,91 @@ class CounterCopywriterAgent:
                 short_comp = short_comp[:12]
 
             for weakness in comp["weaknesses"]:
-                # --- Google Search variant ---
-                if "retainer" in weakness or "price" in weakness or "expensive" in weakness or "commission" in weakness or "pricing" in weakness:
-                    g_headline    = "Flat-Rate. No Surprises."
-                    g_description = f"Tired of high costs? {business_name} offers transparent flat-rate pricing — no retainers, no lock-ins."
-                    m_headline    = "No Hidden Fees Ever"
-                    m_description = f"{business_name} beats {short_comp} on price every time. Clear pricing, zero surprises. Book your free consult today."
+                # --- Combinatorial Generator for 100% Unique Ads ---
+                import hashlib
+                
+                # We build the ad out of 3 parts: Hook, Value, CTA
+                
+                if "retainer" in weakness or "price" in weakness or "expensive" in weakness or "commission" in weakness or "pricing" in weakness or "cost" in weakness:
                     angle = "Pricing Advantage"
+                    g_hooks = ["Flat-Rate.", "No Surprises.", "Transparent Pricing.", "Stop Overpaying."]
+                    g_values = [f"{business_name} offers flat-rate pricing.", f"No lock-ins with {business_name}.", f"We beat {short_comp} on price.", f"Save money with {business_name}."]
+                    
+                    m_hooks = ["No Hidden Fees", "Zero Hidden Costs", "Fair Pricing", "Keep Your Money"]
+                    m_values = [f"Clear pricing, zero surprises.", f"Why pay {short_comp}'s rates?", f"Get premium service for less.", f"Switch to honest pricing."]
 
-                elif "slow" in weakness or "waiting" in weakness or "response" in weakness:
-                    g_headline    = "Same-Day Appointments"
-                    g_description = f"No more waiting weeks. {business_name} offers same-day bookings — faster than {short_comp} by miles."
-                    m_headline    = "Skip the Waitlist"
-                    m_description = f"While {short_comp} has you waiting, {business_name} books you in today. 24/7 scheduling, instant confirmation."
+                elif "slow" in weakness or "waiting" in weakness or "response" in weakness or "wait" in weakness:
                     angle = "Speed and Responsiveness"
+                    g_hooks = ["Same-Day Appointments", "Fast Response Times", "Instant Booking", "Don't Wait Weeks"]
+                    g_values = [f"{business_name} offers same-day bookings.", f"Faster than {short_comp}.", f"Get help immediately.", f"No more waiting rooms."]
+                    
+                    m_hooks = ["Skip the Waitlist", "Fast Track Access", "Available Today", "Instant Approvals"]
+                    m_values = [f"We book you in today.", f"24/7 scheduling available.", f"{short_comp} too slow? Try us.", f"Instant confirmation guaranteed."]
 
-                elif "weekend" in weakness or "availability" in weakness:
-                    g_headline    = "Open Weekends & Evenings"
-                    g_description = f"Unlike {short_comp}, {business_name} is open on weekends. Flexible slots that fit your schedule — book online now."
-                    m_headline    = "We're Open When You Need Us"
-                    m_description = f"{business_name} offers evening and weekend appointments. Stop rescheduling around {short_comp}'s limited hours."
+                elif "weekend" in weakness or "availability" in weakness or "reach" in weakness:
                     angle = "Convenience & Availability"
+                    g_hooks = ["Open Weekends", "Evening Slots", "7-Day Service", "Always Available"]
+                    g_values = [f"{business_name} is open when you need.", f"Flexible slots that fit your life.", f"We work around your schedule.", f"Unlike {short_comp}, we're open."]
+                    
+                    m_hooks = ["Here When You Need Us", "Weekend Appointments", "After-Hours Support", "Total Convenience"]
+                    m_values = [f"Stop rescheduling.", f"Evening and weekend slots.", f"Book outside business hours.", f"We fit into your busy life."]
 
-                elif "painful" in weakness or "quality" in weakness or "generic" in weakness:
-                    g_headline    = "Pain-Free, 5-Star Care"
-                    g_description = f"{business_name} uses modern, gentle techniques. No more dreading appointments like at {short_comp}."
-                    m_headline    = "Your Comfort is Our Priority"
-                    m_description = f"Patients who switched from {short_comp} to {business_name} report a completely different experience. See why."
+                elif "painful" in weakness or "quality" in weakness or "generic" in weakness or "poor" in weakness:
                     angle = "Quality & Comfort"
+                    g_hooks = ["5-Star Care", "Premium Quality", "Award-Winning", "Top Rated Service"]
+                    g_values = [f"{business_name} uses modern techniques.", f"A completely different experience.", f"Highly rated by our customers.", f"Don't settle for less."]
+                    
+                    m_hooks = ["Comfort is Priority", "Exceptional Service", "The Best in Town", "Quality Guaranteed"]
+                    m_values = [f"Switch from {short_comp} today.", f"See why locals love us.", f"Premium service, guaranteed.", f"Experience the difference."]
 
-                elif "pushy" in weakness or "sales" in weakness or "tactics" in weakness:
-                    g_headline    = "No Pressure. Just Results."
-                    g_description = f"{business_name} lets the results speak for themselves. No upsells, no pressure — unlike {short_comp}."
-                    m_headline    = "Honest Service, Zero Pressure"
-                    m_description = f"Tired of feeling sold to at {short_comp}? {business_name} gives you honest advice and lets you decide. Try us free."
+                elif "pushy" in weakness or "sales" in weakness or "tactics" in weakness or "transparency" in weakness:
                     angle = "Trust & Transparency"
+                    g_hooks = ["No Pressure.", "Honest Advice.", "Just Results.", "Transparent Service."]
+                    g_values = [f"{business_name} lets results speak.", f"No upsells, no pressure.", f"Honest service you can trust.", f"We put your needs first."]
+                    
+                    m_hooks = ["Zero Pressure", "Trusted Professionals", "Honest & Reliable", "Straightforward Service"]
+                    m_values = [f"Tired of being sold to?", f"Get honest advice free.", f"Try us with no commitment.", f"We don't do pushy sales."]
 
-                elif "contract" in weakness or "lock" in weakness:
-                    g_headline    = "No Contracts. Cancel Anytime"
-                    g_description = f"Unlike {short_comp}'s lock-in contracts, {business_name} is completely flexible. Pay only for what you use."
-                    m_headline    = "Zero Contract Required"
-                    m_description = f"{business_name} vs {short_comp}: We don't trap you in contracts. Month-to-month, cancel anytime. Start today."
+                elif "contract" in weakness or "lock" in weakness or "inflexible" in weakness:
                     angle = "Flexibility"
+                    g_hooks = ["No Contracts.", "Cancel Anytime.", "Month-to-Month.", "Total Flexibility."]
+                    g_values = [f"{business_name} is completely flexible.", f"Pay only for what you use.", f"Don't get locked in.", f"Freedom to choose."]
+                    
+                    m_hooks = ["Zero Contract Required", "No Lock-Ins", "Stay Because You Want To", "100% Flexible"]
+                    m_values = [f"We don't trap you.", f"Cancel anytime, no fees.", f"Month-to-month freedom.", f"Switch from {short_comp} easily."]
 
                 else:
-                    g_headline    = "The Smarter Choice"
-                    g_description = f"{business_name} solves what {short_comp} keeps getting wrong. Better service, better results — try it free today."
-                    m_headline    = "Make the Switch Today"
-                    m_description = f"Join hundreds who switched from {short_comp} to {business_name}. Superior service with zero commitment needed."
                     angle = "General Counter-Arbitrage"
+                    g_hooks = ["The Smarter Choice", "Better Service", "Upgrade Today", "Switch & Save"]
+                    g_values = [f"{business_name} solves the hard problems.", f"Better service, better results.", f"Try {business_name} free today.", f"Join our happy customers."]
+                    
+                    m_hooks = ["Make the Switch", "A Better Alternative", "Why Settle?", "Experience Better"]
+                    m_values = [f"Join hundreds who switched.", f"Superior service awaits.", f"Zero commitment needed.", f"See what you've been missing."]
+                    
+                g_ctas = [" Book now.", " Try it free.", " Learn more.", " Contact us.", " Get a quote."]
+                m_ctas = [" Click here.", " Sign up today.", " Get started.", " Learn more now.", " Claim offer."]
 
-                # Enforce character limits
-                g_headline    = g_headline[:30]
-                g_description = g_description[:90]
-                m_headline    = m_headline[:30]
-                m_description = m_description[:90]
+                # Generate Google Ad
+                g_headline = f"{random.choice(g_hooks)} {random.choice(['—', '|', '-'])} {short_comp} Alternative"[:30]
+                g_description = f"{random.choice(g_values)} {random.choice(g_ctas)}"[:90]
 
-                # Make headlines unique: if already used, append a short suffix
-                def make_unique(base: str, suffix: str, max_len: int) -> str:
-                    candidate = (base + suffix)[:max_len]
-                    return candidate
+                # Generate Meta Ad
+                m_headline = f"{random.choice(m_hooks)}"[:30]
+                m_description = f"{random.choice(m_values)} {random.choice(m_ctas)}"[:90]
 
-                g_suffix = google_suffixes[comp_idx % len(google_suffixes)]
-                m_suffix = meta_suffixes[comp_idx % len(meta_suffixes)]
+                # Ensure Uniqueness with a fallback salt if needed
+                def ensure_unique(text: str, max_len: int) -> str:
+                    original = text
+                    attempts = 0
+                    while text in used_headlines and attempts < 10:
+                        salt = str(random.randint(10, 99))
+                        text = f"{original} {salt}"[:max_len]
+                        attempts += 1
+                    used_headlines.add(text)
+                    return text
 
-                if g_headline in used_headlines:
-                    g_headline = make_unique(g_headline.rstrip(), g_suffix, 30)
-                used_headlines.add(g_headline)
-
-                if m_headline in used_headlines:
-                    m_headline = make_unique(m_headline.rstrip(), m_suffix, 30)
-                used_headlines.add(m_headline)
+                g_headline = ensure_unique(g_headline, 30)
+                m_headline = ensure_unique(m_headline, 30)
 
                 counter_ads.append({
                     "target_competitor": comp_name,

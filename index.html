@@ -78,12 +78,22 @@
                             <input type="text" id="targetLocation" placeholder="e.g., United States" required value="United States">
                         </div>
 
-                        <button type="submit" class="btn-launch" id="btnLaunch">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            Launch Campaign Strike
-                        </button>
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button type="submit" class="btn-launch" id="btnLaunch" style="flex: 1;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Launch Campaign Strike
+                            </button>
+                            <button type="button" class="btn-launch" id="btnExport" style="display: none; flex: 1; background: linear-gradient(135deg, #10b981, #059669);" onclick="exportAdsToCSV()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Export Ad CSV
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -380,6 +390,7 @@
             const btn = document.getElementById('btnLaunch');
             btn.disabled = true;
             btn.innerHTML = `<span class="pulse-dot"></span> Targeting...`;
+            document.getElementById('btnExport').style.display = 'none';
 
             // Clear feeds
             document.getElementById('competitorAdsFeed').innerHTML = '';
@@ -451,12 +462,41 @@
             btn.innerHTML = `Run Again`;
             btn.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))';
 
+            // Show export button
+            document.getElementById('btnExport').style.display = 'flex';
+
             logToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'cyan');
             logToTerminal('OUTPACE ANALYSIS COMPLETE — 14-day simulation finished.', 'success');
             logToTerminal(`Total competitor ads captured: ${document.querySelectorAll('.competitor-ad-card').length}`, 'success');
             logToTerminal(`Total counter-ads generated:  ${document.querySelectorAll('.counter-ad-card').length}`, 'success');
             logToTerminal('Review your counter-ads above and export to your ad platform.', 'warn');
             logToTerminal('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'cyan');
+        }
+
+        // Export generated ads to CSV
+        function exportAdsToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Target Competitor,Channel,Angle,Headline,Description\n";
+
+            // If we have an API response stored, use it. Otherwise, scrape the DOM.
+            const ads = document.querySelectorAll('.counter-ad-card');
+            ads.forEach(ad => {
+                const competitor = ad.querySelector('.ad-target').innerText.replace('Target: ', '').replace(/,/g, '');
+                const channel = ad.querySelector('.ad-channel').innerText.replace(/,/g, '');
+                const angle = ad.querySelector('.ad-angle').innerText.replace('Angle: ', '').replace(/,/g, '');
+                const headline = ad.querySelector('.ad-headline').innerText.replace(/,/g, '');
+                const description = ad.querySelector('.ad-body').innerText.replace(/,/g, '');
+                csvContent += `${competitor},${channel},${angle},${headline},${description}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `outpace_ads_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            logToTerminal('Exported generated ads to CSV successfully.', 'success');
         }
 
         // Main telemetry fetch / simulation logic
